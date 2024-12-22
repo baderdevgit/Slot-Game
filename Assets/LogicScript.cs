@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class LogicScript : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class LogicScript : MonoBehaviour
     public Button playButton;
     public GameObject chestGrid;
     public GameObject chestPrefab;
+    private Tween playButtonTween;
 
     public void changeBalance(float amount){
         balance += amount;
@@ -57,8 +59,6 @@ public class LogicScript : MonoBehaviour
                 // Instantiate the button prefab
                 GameObject newButton = Instantiate(chestPrefab);//new GameObject("Button_" + i + "_" + j);
                 Button buttonComponent = newButton.GetComponent<Button>();
-                // Image buttonImage = newButton.AddComponent<Image>();
-                // buttonImage.color = Color.white;
 
                 RectTransform buttonRect = newButton.GetComponent<RectTransform>();
                 buttonRect.sizeDelta = new Vector2(buttonSize, buttonSize); // Size of the button
@@ -68,9 +68,23 @@ public class LogicScript : MonoBehaviour
                 );
                 // Set the new button's parent to the panel
                 newButton.transform.SetParent(chestGrid.transform, false);
-
                 buttonComponent.onClick.AddListener(() => chestClick(newButton)); // Pass row and column as parameters
-            }
+
+                //initial tween fade in
+                // Initially set the button scale to 0 (scaled down)
+                buttonComponent.transform.localScale = Vector3.zero;
+
+                // Create a sequence to combine both fade and scale animations
+                Sequence buttonSequence = DOTween.Sequence();
+
+                // Scale the button to its normal size (1, 1, 1) over 1 second
+                buttonSequence.Join(buttonComponent.transform.DOScale(Vector3.one, 1f).SetEase(Ease.OutBack));
+                buttonSequence.OnComplete(() => {
+                    Tween t = buttonComponent.GetComponent<RectTransform>().DOScale(new Vector3(1.05f, 1.05f, 1), 0.5f) 
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetEase(Ease.InOutSine);
+                });
+            }    
         }
     }
 
@@ -99,12 +113,21 @@ public class LogicScript : MonoBehaviour
         playButton.interactable = true;
         plusDenomination.interactable = true;
         minusDenomination.interactable = true;
+        playButtonTween.Play();
     }
 
     public void disableMenu(){
         playButton.interactable = false;
         plusDenomination.interactable = false;
         minusDenomination.interactable = false;
+        playButtonTween.Pause();
+    }
+
+    public void initTween(){
+        playButton.GetComponent<RectTransform>().localScale = Vector3.one;
+        playButtonTween = playButton.GetComponent<RectTransform>().DOScale(new Vector3(1.05f, 1.05f, 1), 0.5f) 
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine);
     }
 
     void Start() {
@@ -112,6 +135,7 @@ public class LogicScript : MonoBehaviour
         denominationText.text = "$"+denominationArray[denominationIndex].ToString("F2");
         lastWinText.text = "$" + lastWin.ToString("F2");
         initGridButtons();
+        initTween();
     }
 
     public void PlayRound() {
