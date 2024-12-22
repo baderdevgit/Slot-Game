@@ -17,6 +17,7 @@ public class LogicScript : MonoBehaviour
     public Text denominationText; 
     public Button plusDenomination;
     public Button minusDenomination;
+    public Button playButton;
     public GameObject chestGrid;
     public GameObject chestPrefab;
 
@@ -47,17 +48,17 @@ public class LogicScript : MonoBehaviour
     public void initGridButtons(){
         int rows = 3;
         int columns = 3;
-        float buttonSize = 150f;
-        float buttonSpacing = buttonSize/2 + 150f;
+        float buttonSize = 100f;
+        float buttonSpacing = buttonSize/2 + 200f;
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < columns; j++)
             {
                 // Instantiate the button prefab
-                GameObject newButton = new GameObject("Button_" + i + "_" + j);
-                Button buttonComponent = newButton.AddComponent<Button>();
-                Image buttonImage = newButton.AddComponent<Image>();
-                buttonImage.color = Color.white;
+                GameObject newButton = Instantiate(chestPrefab);//new GameObject("Button_" + i + "_" + j);
+                Button buttonComponent = newButton.GetComponent<Button>();
+                // Image buttonImage = newButton.AddComponent<Image>();
+                // buttonImage.color = Color.white;
 
                 RectTransform buttonRect = newButton.GetComponent<RectTransform>();
                 buttonRect.sizeDelta = new Vector2(buttonSize, buttonSize); // Size of the button
@@ -87,11 +88,24 @@ public class LogicScript : MonoBehaviour
             float chestValue = round.getNextChestValue();
             if (chestValue == 0) {
                 inTurn = false;
+                enableMenu();
             }
             changeBalance(chestValue);
             setLastWin(chestValue);
         }
     }   
+
+    public void enableMenu(){
+        playButton.interactable = true;
+        plusDenomination.interactable = true;
+        minusDenomination.interactable = true;
+    }
+
+    public void disableMenu(){
+        playButton.interactable = false;
+        plusDenomination.interactable = false;
+        minusDenomination.interactable = false;
+    }
 
     void Start() {
         balanceText.text = "$" + balance.ToString("F2");
@@ -101,12 +115,13 @@ public class LogicScript : MonoBehaviour
     }
 
     public void PlayRound() {
+        disableMenu();
+
         if(inTurn) return;
         inTurn = true;
         resetGridButtons();
         changeBalance(-1*denominationArray[denominationIndex]); //subtracts denomination from balance
         this.round = new Round();
-        changeBalance(round.winAmount);                               //adds win amount to balance
     }
 
     
