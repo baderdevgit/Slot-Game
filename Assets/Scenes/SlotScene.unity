@@ -2124,6 +2124,8 @@ MonoBehaviour:
   receiptPrefab: {fileID: 6147927337296437989, guid: aa9a18b0bef3f7049945929975aa5c14,
     type: 3}
   mainPanel: {fileID: 1302860343}
+  balancePanel: {fileID: 30306815}
+  denominationPanel: {fileID: 322460391}
 --- !u!4 &1947398429
 Transform:
   m_ObjectHideFlags: 0

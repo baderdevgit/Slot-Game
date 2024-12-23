@@ -25,6 +25,8 @@ public class LogicScript : MonoBehaviour
     public GameObject chestPrefab;
     public GameObject receiptPrefab;
     public GameObject mainPanel;
+    public GameObject balancePanel;
+    public GameObject denominationPanel;
     private Tween playButtonTween;
     private List<Tween> gridTweens = new List<Tween>();
 
@@ -58,10 +60,6 @@ public class LogicScript : MonoBehaviour
          lastWinText.transform.DOScale(0.5f, 0.25f)
             .OnComplete(() => 
             {
-                // DOTween.To(() => float.Parse(lastWinText.text.Substring(1)), 
-                //     x => lastWinText.text = "$" + x.ToString("F2"), 
-                //     lastWin, 
-                //     0.5f);
                 if(amount != 0){
                     lastWinText.DOColor(Color.green, 0.5f)
                     .OnComplete(() => 
@@ -155,14 +153,35 @@ public class LogicScript : MonoBehaviour
             "I wasn't even hungry",
             "I have a boyfriend",
             "I don't morally agree with tipping",
-            "here's a tip, brush your teeth"
+            "here's a tip, brush your teeth",
+            "I don't want to tip, I want to be rich",
+            "Im neva steppin foot back in this establishment",
+            "I'd rather eat dog food off the floor, that was aweful",
+            "You gave me the wrong order >:(",
+            "I found a hair in the salsa",
+            "I'm going to chipotle next time",
+            "The food took too long",
+            "I said no pickles and there was pickles!",
+            "Clean the bathrooms",
         };
 
         string[] winningTexts = {
             "don't spend it all in one place!",
             "great food!",
             "my friends looking so I had to tip",
-            "thanks for not spitting in my food again"
+            "thanks for not spitting in my food again",
+            "exccellent service",
+            "there's more where that came from ;)",
+            "I see a bright future in you",
+            "I've got too much money",
+            "Im using the company card",
+            "I'll be back!",
+            "You've earned it",
+            "Call me ;)",
+            "You're gonna go far kid",
+            "That salsa was amazing",
+            "Gracias"
+
         };
 
         GameObject r = Instantiate(receiptPrefab);
@@ -223,23 +242,31 @@ public class LogicScript : MonoBehaviour
         sequence.Join(rectTransform.DOAnchorPosY(initialPosition.y + 100f, 1f)); // Move up another 50 units
 
         // Destroy the Panel after fading out
-        sequence.OnComplete(() => Destroy(r));
+        sequence.OnComplete(() => 
+        {
+            Destroy(r);
+            if(amount == 0) {
+                inTurn = false;
+                clearGridButtons();
+                enableMenu();
+            }
+
+        });
     }
 
     public void chestClick(GameObject buttonObj) {
-        buttonObj.GetComponent<Button>().interactable = false;
         if (buttonObj != null && buttonObj.GetComponent<Button>() != null && inTurn) {
+            buttonObj.GetComponent<Button>().interactable = false;
             buttonObj.GetComponent<Button>().GetComponent<RectTransform>().DOScale(new Vector3(0f, 0f, 1), 0.5f)
             .OnComplete(() => buttonObj.SetActive(false));
 
             float chestValue = round.getNextChestValue();
-            spawnReceipt(chestValue);
             if (chestValue == 0 || chestValue < 0f) {
                 inTurn = false;
-                clearGridButtons();
-                enableMenu();
                 chestValue = 0;
             }
+            spawnReceipt(chestValue);
+
             changeBalance(chestValue);
             setLastWin(chestValue);
         }
@@ -264,6 +291,13 @@ public class LogicScript : MonoBehaviour
         playButtonTween = playButton.GetComponent<RectTransform>().DOScale(new Vector3(1.05f, 1.05f, 1), 0.5f) 
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
+        float onScreenX = balancePanel.GetComponent<RectTransform>().anchoredPosition.x;
+        balancePanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(balancePanel.GetComponent<RectTransform>().anchoredPosition.x - 200f, balancePanel.GetComponent<RectTransform>().anchoredPosition.y);
+        balancePanel.GetComponent<RectTransform>().DOAnchorPosX(onScreenX, 1f).SetEase(Ease.OutQuad);
+
+        float onScreenX2 = denominationPanel.GetComponent<RectTransform>().anchoredPosition.x;
+        denominationPanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(denominationPanel.GetComponent<RectTransform>().anchoredPosition.x + 200f, denominationPanel.GetComponent<RectTransform>().anchoredPosition.y);
+        denominationPanel.GetComponent<RectTransform>().DOAnchorPosX(onScreenX2, 1f).SetEase(Ease.OutQuad);
     }
 
     void Start() {
