@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class LogicScript : MonoBehaviour
 {
@@ -13,8 +14,8 @@ public class LogicScript : MonoBehaviour
     public static bool inTurn = false;
     public Round round;
 
-    public Text balanceText;
-    public Text lastWinText;
+    public TMP_Text balanceText;
+    public TMP_Text lastWinText;
 
     public Text denominationText; 
     public Button plusDenomination;
@@ -27,7 +28,12 @@ public class LogicScript : MonoBehaviour
 
     public void changeBalance(float amount){
         balance += amount;
-        balanceText.text = "$" + balance.ToString("F2");
+        // balanceText.text = "$" + balance.ToString("F2");
+        DOTween.To(() => float.Parse(balanceText.text.Substring(1)), 
+                    x => balanceText.text = "$" + x.ToString("F2"), 
+                    balance, 
+                    1.0f);
+
     }
 
     public void increaseDenomination(){
@@ -46,7 +52,34 @@ public class LogicScript : MonoBehaviour
 
     public void setLastWin(float amount){
         lastWin = amount;
-        lastWinText.text = "$" + lastWin.ToString("F2");
+        
+         lastWinText.transform.DOScale(0.5f, 0.25f)
+            .OnComplete(() => 
+            {
+                // DOTween.To(() => float.Parse(lastWinText.text.Substring(1)), 
+                //     x => lastWinText.text = "$" + x.ToString("F2"), 
+                //     lastWin, 
+                //     0.5f);
+                if(amount != 0){
+                    lastWinText.DOColor(Color.green, 0.5f)
+                    .OnComplete(() => 
+                    {
+                        // Once color change to green is complete, change it back to white
+                        lastWinText.DOColor(Color.white, 0.5f);
+                    });
+                } else {
+                    lastWinText.DOColor(Color.red, 0.5f)
+                    .OnComplete(() => 
+                    {
+                        // Once color change to green is complete, change it back to white
+                        lastWinText.DOColor(Color.white, 0.5f);
+                    });
+                }
+                
+                lastWinText.text = "$" + lastWin.ToString("F2");
+                // Once scaling down is complete, scale it back up quickly to original size
+                lastWinText.transform.DOScale(1f, 0.25f);
+            });
     }
 
     public void initGridButtons(){
@@ -99,11 +132,14 @@ public class LogicScript : MonoBehaviour
         }
         foreach (Transform child in chestGrid.transform)
         {
-            // child.gameObject.SetActive(true);
-            Destroy(child.gameObject);
+            GameObject buttonObj = child.gameObject;
+            buttonObj.GetComponent<Button>().GetComponent<RectTransform>().DOScale(new Vector3(0f, 0f, 1), 0.5f)
+            .OnComplete(() => {
+                Destroy(child.gameObject);
+            });
         }
-        initGridButtons();
         gridTweens.Clear();
+        initGridButtons();
     }
 
     public void chestClick(GameObject buttonObj) {
