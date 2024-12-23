@@ -15,6 +15,7 @@ public class LogicScript : MonoBehaviour
 
     public Text balanceText;
     public Text lastWinText;
+
     public Text denominationText; 
     public Button plusDenomination;
     public Button minusDenomination;
@@ -22,6 +23,7 @@ public class LogicScript : MonoBehaviour
     public GameObject chestGrid;
     public GameObject chestPrefab;
     private Tween playButtonTween;
+    private List<Tween> gridTweens = new List<Tween>();
 
     public void changeBalance(float amount){
         balance += amount;
@@ -82,27 +84,39 @@ public class LogicScript : MonoBehaviour
                 buttonSequence.OnComplete(() => {
                     Tween t = buttonComponent.GetComponent<RectTransform>().DOScale(new Vector3(1.05f, 1.05f, 1), 0.5f) 
                     .SetLoops(-1, LoopType.Yoyo)
-                    .SetEase(Ease.InOutSine);
+                    .SetEase(Ease.InOutSine)
+                    .SetTarget(newButton);
+                    gridTweens.Add(t);
                 });
             }    
         }
     }
 
     public void resetGridButtons(){
+        foreach (Tween t in gridTweens)
+        {
+            t.Kill();
+        }
         foreach (Transform child in chestGrid.transform)
         {
-            child.gameObject.SetActive(true);
+            // child.gameObject.SetActive(true);
+            Destroy(child.gameObject);
         }
+        initGridButtons();
+        gridTweens.Clear();
     }
 
     public void chestClick(GameObject buttonObj) {
+        buttonObj.GetComponent<Button>().interactable = false;
         if (buttonObj != null && buttonObj.GetComponent<Button>() != null && inTurn) {
-            buttonObj.SetActive(false);
+            buttonObj.GetComponent<Button>().GetComponent<RectTransform>().DOScale(new Vector3(0f, 0f, 1), 0.5f)
+            .OnComplete(() => buttonObj.SetActive(false));
 
             float chestValue = round.getNextChestValue();
-            if (chestValue == 0) {
+            if (chestValue == 0 || chestValue < 0f) {
                 inTurn = false;
                 enableMenu();
+                chestValue = 0;
             }
             changeBalance(chestValue);
             setLastWin(chestValue);
@@ -134,7 +148,8 @@ public class LogicScript : MonoBehaviour
         balanceText.text = "$" + balance.ToString("F2");
         denominationText.text = "$"+denominationArray[denominationIndex].ToString("F2");
         lastWinText.text = "$" + lastWin.ToString("F2");
-        initGridButtons();
+        
+        // initGridButtons();
         initTween();
     }
 
