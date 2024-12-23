@@ -231,6 +231,7 @@ GameObject:
   - component: {fileID: 30306816}
   - component: {fileID: 30306818}
   - component: {fileID: 30306817}
+  - component: {fileID: 30306819}
   m_Layer: 5
   m_Name: Balance Panel
   m_TagString: Untagged
@@ -295,6 +296,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 30306815}
   m_CullTransparentMesh: 0
+--- !u!114 &30306819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 30306815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.16862746}
+  m_EffectDistance: {x: -12.34, y: -3.19}
+  m_UseGraphicAlpha: 1
 --- !u!1 &66616110
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,6 +396,7 @@ GameObject:
   - component: {fileID: 185530478}
   - component: {fileID: 185530480}
   - component: {fileID: 185530479}
+  - component: {fileID: 185530481}
   m_Layer: 5
   m_Name: Register
   m_TagString: Untagged
@@ -445,6 +462,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 185530477}
   m_CullTransparentMesh: 0
+--- !u!114 &185530481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185530477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.36078432}
+  m_EffectDistance: {x: -6.64, y: 7.1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &267598809
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,6 +640,7 @@ GameObject:
   - component: {fileID: 322460392}
   - component: {fileID: 322460394}
   - component: {fileID: 322460393}
+  - component: {fileID: 322460395}
   m_Layer: 5
   m_Name: Denomination Panel
   m_TagString: Untagged
@@ -672,6 +705,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 322460391}
   m_CullTransparentMesh: 0
+--- !u!114 &322460395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322460391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.29411766}
+  m_EffectDistance: {x: -12.6, y: -2.1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &347240332
 GameObject:
   m_ObjectHideFlags: 0
@@ -2073,6 +2121,9 @@ MonoBehaviour:
   chestGrid: {fileID: 66616110}
   chestPrefab: {fileID: 2560898388512838260, guid: 247b65f6d4bac2b4bb6639621880b1e1,
     type: 3}
+  receiptPrefab: {fileID: 6147927337296437989, guid: aa9a18b0bef3f7049945929975aa5c14,
+    type: 3}
+  mainPanel: {fileID: 1302860343}
 --- !u!4 &1947398429
 Transform:
   m_ObjectHideFlags: 0

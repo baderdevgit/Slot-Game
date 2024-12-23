@@ -23,6 +23,8 @@ public class LogicScript : MonoBehaviour
     public Button playButton;
     public GameObject chestGrid;
     public GameObject chestPrefab;
+    public GameObject receiptPrefab;
+    public GameObject mainPanel;
     private Tween playButtonTween;
     private List<Tween> gridTweens = new List<Tween>();
 
@@ -125,7 +127,7 @@ public class LogicScript : MonoBehaviour
         }
     }
 
-    public void resetGridButtons(){
+    public void clearGridButtons(){
         foreach (Tween t in gridTweens)
         {
             t.Kill();
@@ -139,7 +141,89 @@ public class LogicScript : MonoBehaviour
             });
         }
         gridTweens.Clear();
+    }
+    public void resetGridButtons(){
+        clearGridButtons();
         initGridButtons();
+    }
+
+    public void spawnReceipt(float amount) {
+        string[] losingTexts = {
+            "there was a finger in the chili...",
+            "u forgot my side enchilada :(",
+            "I'm broke",
+            "I wasn't even hungry",
+            "I have a boyfriend",
+            "I don't morally agree with tipping",
+            "here's a tip, brush your teeth"
+        };
+
+        string[] winningTexts = {
+            "don't spend it all in one place!",
+            "great food!",
+            "my friends looking so I had to tip",
+            "thanks for not spitting in my food again"
+        };
+
+        GameObject r = Instantiate(receiptPrefab);
+        r.transform.SetParent(mainPanel.transform, true);
+        r.transform.localScale = Vector3.one;
+        Image bgImage = r.GetComponent<Image>();
+        if (bgImage != null) {
+            bgImage.enabled = true;
+        }
+
+        Text tipValue = r.transform.Find("tip_value").GetComponent<Text>();
+        tipValue.text = "$" + amount.ToString("F2");
+
+        TMP_Text handwritting = r.transform.Find("handwritting").GetComponent<TMP_Text>();
+        if(amount == 0){
+            handwritting.color = Color.red;
+            handwritting.text = losingTexts[Random.Range(0, losingTexts.Length)];
+        } else {
+            handwritting.color = Color.blue;
+            handwritting.text = winningTexts[Random.Range(0, winningTexts.Length)]; 
+        }
+        handwritting.maxVisibleCharacters = 0;
+
+        // Add a CanvasGroup if the panel doesn't already have one
+        CanvasGroup canvasGroup = r.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = r.AddComponent<CanvasGroup>();
+        }
+
+        // Set initial alpha to 0 (invisible)
+        canvasGroup.alpha = 0f;
+
+        // Get the panel's RectTransform (to adjust its position)
+        RectTransform rectTransform = r.GetComponent<RectTransform>();
+
+        // Store the initial position of the panel
+        Vector3 initialPosition = rectTransform.anchoredPosition;
+
+        // Create a DoTween sequence for fading in, moving up, waiting, and fading out
+        Sequence sequence = DOTween.Sequence();
+
+        // Fade-in over 1 second while moving the panel up
+        sequence.Append(canvasGroup.DOFade(1f, 1f)); // Fade-in the panel
+        sequence.Join(rectTransform.DOAnchorPosY(initialPosition.y + 50f, 1f)); // Move up by 50 units
+
+        // Reveal text at the same time as the panel fade-in and move
+        handwritting.ForceMeshUpdate();
+        int totalCharacters = handwritting.textInfo.characterCount;
+
+        sequence.Join(DOTween.To(() => handwritting.maxVisibleCharacters, x => handwritting.maxVisibleCharacters = x, totalCharacters, totalCharacters * 0.05f));
+
+        // Add a 2-second delay after the text is fully revealed
+        sequence.AppendInterval(1f); // Wait for 2 seconds after typing is done
+
+        // Fade-out over 1 second while moving the panel up by another 50 units
+        sequence.Append(canvasGroup.DOFade(0f, 1f)); // Fade-out the panel
+        sequence.Join(rectTransform.DOAnchorPosY(initialPosition.y + 100f, 1f)); // Move up another 50 units
+
+        // Destroy the Panel after fading out
+        sequence.OnComplete(() => Destroy(r));
     }
 
     public void chestClick(GameObject buttonObj) {
@@ -149,8 +233,10 @@ public class LogicScript : MonoBehaviour
             .OnComplete(() => buttonObj.SetActive(false));
 
             float chestValue = round.getNextChestValue();
+            spawnReceipt(chestValue);
             if (chestValue == 0 || chestValue < 0f) {
                 inTurn = false;
+                clearGridButtons();
                 enableMenu();
                 chestValue = 0;
             }
@@ -184,8 +270,6 @@ public class LogicScript : MonoBehaviour
         balanceText.text = "$" + balance.ToString("F2");
         denominationText.text = "$"+denominationArray[denominationIndex].ToString("F2");
         lastWinText.text = "$" + lastWin.ToString("F2");
-        
-        // initGridButtons();
         initTween();
     }
 
@@ -199,7 +283,6 @@ public class LogicScript : MonoBehaviour
         this.round = new Round();
     }
 
-    
     public class Round {
         public static int[][] multipliers = {
             new int[] { 0 },
@@ -225,12 +308,6 @@ public class LogicScript : MonoBehaviour
                 this.chests = new List<float>();
             }
             this.chests.Add(0f);
-
-
-            // foreach(float chest in chests){
-            //     Debug.Log(chest);
-            // }
-            // Debug.Log("Won "+winMultiplier+"x for a total of $"+winAmount);
         }
 
         int getWinMultiplier(){
